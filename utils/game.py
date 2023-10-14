@@ -12,5 +12,5 @@ def fetch_monthly_games(df, start_year, end_year, months, blacklist):
             if (year, month) in blacklist: continue
             url = f'https://www.basketball-reference.com/leagues/NBA_{year}_games-{month}.html'
             print(f'Processing games for year, month: ({year}, {month})')
-            df = fetch_url(url, _process_monthly_games, (df, year, month))
+            fetch_url(url, _process_monthly_games, (df, year, month))
     return df

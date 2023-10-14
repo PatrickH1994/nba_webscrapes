@@ -9,7 +9,6 @@ def fetch_url(url, callback, callback_args):
         for attempt in range(5):  # Retry up to 5 times
             response = session.get(url)
             if response.status_code == 429:
-                return 429
                 retry_after = int(response.headers.get('Retry-After', backoff_time))  # Use backoff_time if header is missing
                 print(f'Rate limited. Retrying in {retry_after} seconds...')
                 time.sleep(retry_after)
@@ -24,10 +23,12 @@ def fetch_url(url, callback, callback_args):
             else:
                 if response.status_code == 404:
                     print(f"404 encountered for URL: {url}. Skipping.")
-                    return None
+                    return callback_args[0]
                 print(f'Failed with status {response.status_code} for URL: {url}. Retrying in {backoff_time} seconds...')
                 time.sleep(backoff_time)
                 backoff_time = min(backoff_time * 2, max_backoff_time)  # Double the backoff_time, but do not exceed max_backoff_time
 
             # Random delay to avoid being blocked, executed regardless of the response status
             time.sleep(random.uniform(2, 5))  # Reduced random sleep time to speed up the retry process
+        print(f'Retried 5 times and still getting 429... skipping URL: {url}')
+        return callback_args[0]
